@@ -5,8 +5,8 @@ import core_sup as cs
 import time
 
 
-def open_video_file():
-    video_file = cv2.VideoCapture(source + "vid.mp4")  # Открытие видео
+def open_video_file(path):
+    video_file = cv2.VideoCapture(path + "vid.mp4")  # Открытие видео
     if not video_file.isOpened():
         print("Can't open your video file")
 
@@ -24,27 +24,27 @@ def get_special_frame(video_file, pos):
     return frame
 
 
-source = os.getcwd() + "\\"  # Получение расположения .exe
-print("Wait")
+if __name__ == "__main__":
+    source = os.getcwd() + "\\"  # Получение расположения .exe
 
-cv2.setUseOptimized(cv2.useOptimized())
-vid, frame_info = open_video_file()
+    cv2.setUseOptimized(cv2.useOptimized())
+    vid, frame_info = open_video_file(os.getcwd() + "\\")
 
-# a = cs.BasisCurve('LIN', [frame_w, frame_h, frame_n - 500, frame_n - 100], [5, 0.5, 0])
-# [mat_a, pix_storage_a] = a.get_surface()
-# final_frame = cs.Frame(vid, pix_storage_a)
+    # a = cs.BasisCurve('LIN', [frame_w, frame_h, frame_n - 500, frame_n - 100], [5, 0.5, 0])
+    # [mat_a, pix_storage_a] = a.get_surface()
+    # final_frame = cs.Frame(vid, pix_storage_a)
 
-b = cs.BasisCurve('GAUSS', [frame_info[0],
-                            frame_info[1],
-                            frame_info[2] - 500,
-                            frame_info[2] - 100], [250, 200, 300, 150, 400, 150])
-[mat_b, pix_storage_b] = b.get_surface()
-final_frame = cs.Frame(vid, pix_storage_b)
+    b = cs.BasisCurve('GAUSS', [frame_info[0],
+                                frame_info[1],
+                                frame_info[2] - 500,
+                                frame_info[2] - 100], [250, 200, 300, 150, 400, 150])
+    [mat_b, pix_storage_b] = b.get_surface()
+    final_frame = cs.Frame(vid, pix_storage_b)
 
-cs.save_result_frame(source, final_frame.get_frame())
+    cs.save_result_frame(source, final_frame.get_frame())
 
-# When everything done, release the video capture object
-vid.release()
+    # When everything done, release the video capture object
+    vid.release()
 
-# Closes all the frames
-cv2.destroyAllWindows()
+    # Closes all the frames
+    cv2.destroyAllWindows()
