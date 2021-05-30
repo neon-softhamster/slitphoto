@@ -1,7 +1,7 @@
 import core as c
 import core_sup as cs
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
 from PyQt5.QtGui import QPixmap, QImage, QColor
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QObject
 import sys
@@ -13,45 +13,52 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("SlitPhoto v0.01")
-        self.setFixedSize(1100, 800)
+        # self.setFixedSize(1100, 800)
+        self.move(300, 150)
+        self.grid = QGridLayout()
+        frame_in_window1 = FrameInWindow(source, 100, 500, 300)  # Задается путь к файлу, номер кадра, шир. и высота
+        frame_in_window2 = FrameInWindow(source, 400, 500, 300)
+        frame_in_window1.add_frame2win("fst", self.grid)
+        frame_in_window2.add_frame2win("lst", self.grid)
+        self.setLayout(self.grid)
 
 
 class FrameInWindow:
     def __init__(self, src, frame_n, w, h):
-        self.source = src
         self.frame_n = frame_n
         self.w = w
         self.h = h
 
         # open video_file for usage
-        self.video_file = cs.VideoFile(self.source)
-        self.vid = self.video_file.get_video_flow()
-        self.frame_info = self.video_file.get_video_info()
-
-        # create the label that holds the image
-        self.frame_label = QLabel()
-        # create a text label
-        self.textLabel = QLabel('1st frame in your video')
-
-        # create a vertical box layout and add the two labels
-        vbox_pic = QVBoxLayout()
-        vbox_pic.addWidget(self.frame_label)
-        vbox_pic.setContentsMargins(25, 25, 1100 - (25 + self.w), 800 - (25 + self.h))
-        # set the vbox layout as the widgets layout
-        a.setLayout(vbox_pic)
-
-        # create subtext for this pic
-        vbox_text = QVBoxLayout()
-        vbox_text.addWidget(self.textLabel)
-        vbox_text.setContentsMargins(25 + self.w, 25 + self.h, 1100 - 25, 800 - 25)
-        a.setLayout(vbox_text)
+        self.video_file = cs.VideoFile(src)
 
         # convert the image to Qt format
-        qt_img = self.convert_cv_qt(self.get_cv_frame())
+        self.qt_img = self._convert_cv_qt(self.video_file.get_special_frame(self.frame_n))
         # display it
-        self.frame_label.setPixmap(qt_img)
 
-    def convert_cv_qt(self, cv_img):
+    def add_frame2win(self, fst_or_lst, grid):
+        if fst_or_lst == "fst":
+            # create the label that holds the image
+            frame_label = QLabel()
+            frame_label.setPixmap(self.qt_img)
+            text_label = QLabel('1st frame in your video')
+
+            grid.addWidget(frame_label, 0, 0)
+            grid.addWidget(text_label, 1, 0)
+        elif fst_or_lst == "lst":
+            # create the label that holds the image
+            frame_label = QLabel()
+            frame_label.setPixmap(self.qt_img)
+            text_label = QLabel('lst frame in your video')
+
+            grid.addWidget(frame_label, 0, 1)
+            grid.addWidget(text_label, 1, 1)
+        else:
+            print("FrameInWindow last arg can be \"fst\" or \"lst\" only")
+
+        self.video_file.__del__()
+
+    def _convert_cv_qt(self, cv_img):
         # Convert from an opencv image to QPixmap
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb_image.shape
@@ -60,17 +67,12 @@ class FrameInWindow:
         p = convert_to_qt_format.scaled(self.w, self.h, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
-    def get_cv_frame(self):
-        frame = self.video_file.get_special_frame(self.frame_n)
-        return frame
-
 
 if __name__ == "__main__":
     source = os.getcwd() + "\\"
 
     app = QApplication(sys.argv)
     a = App()
-    frame_in_window = FrameInWindow(source, 100, 500, 300) # Задается путь к файлу, номмер кадра, ширина и высота
 
     a.show()
     sys.exit(app.exec_())

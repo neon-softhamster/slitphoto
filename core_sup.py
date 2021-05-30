@@ -26,6 +26,9 @@ class VideoFile(cv2.VideoCapture):
         inf, frame = self.video_file.read()
         return frame
 
+    def __del__(self):
+        self.video_file.release()
+
 
 class BasisCurve:
     def __init__(self, curve_type, box, curve_param):
