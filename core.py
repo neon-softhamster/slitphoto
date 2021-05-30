@@ -5,30 +5,13 @@ import core_sup as cs
 import time
 
 
-def open_video_file(path):
-    video_file = cv2.VideoCapture(path + "vid.mp4")  # Открытие видео
-    if not video_file.isOpened():
-        print("Can't open your video file")
-
-    frame_w = video_file.get(cv2.CAP_PROP_FRAME_WIDTH)  # Высота кадра
-    frame_h = video_file.get(cv2.CAP_PROP_FRAME_HEIGHT)  # Ширина кадра
-    frame_n = video_file.get(cv2.CAP_PROP_FRAME_COUNT)  # Количество кадров
-    frame_f = video_file.get(cv2.CAP_PROP_FPS)  # FPS
-
-    return video_file, [frame_w, frame_h, frame_n, frame_f]
-
-
-def get_special_frame(video_file, pos):
-    video_file.set(cv2.CAP_PROP_POS_FRAMES, pos)
-    inf, frame = video_file.read()
-    return frame
-
-
 if __name__ == "__main__":
     source = os.getcwd() + "\\"  # Получение расположения .exe
 
     cv2.setUseOptimized(cv2.useOptimized())
-    vid, frame_info = open_video_file(os.getcwd() + "\\")
+    video_file = cs.VideoFile(source)
+    vid = video_file.get_video_flow()
+    frame_info = video_file.get_video_info()
 
     # a = cs.BasisCurve('LIN', [frame_w, frame_h, frame_n - 500, frame_n - 100], [5, 0.5, 0])
     # [mat_a, pix_storage_a] = a.get_surface()

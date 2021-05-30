@@ -3,6 +3,30 @@ import cv2
 import os
 
 
+class VideoFile(cv2.VideoCapture):
+    def __init__(self, path):
+        super().__init__()
+        self.video_file = cv2.VideoCapture(path + "vid.mp4")  # Открытие видео
+        if not self.video_file.isOpened():
+            print("Can't open your video file")
+
+    def get_video_info(self):
+        frame_w = self.video_file.get(cv2.CAP_PROP_FRAME_WIDTH)  # Высота кадра
+        frame_h = self.video_file.get(cv2.CAP_PROP_FRAME_HEIGHT)  # Ширина кадра
+        frame_n = self.video_file.get(cv2.CAP_PROP_FRAME_COUNT)  # Количество кадров
+        frame_f = self.video_file.get(cv2.CAP_PROP_FPS)  # FPS
+
+        return [frame_w, frame_h, frame_n, frame_f]
+
+    def get_video_flow(self):
+        return self.video_file
+
+    def get_special_frame(self, pos):
+        self.video_file.set(cv2.CAP_PROP_POS_FRAMES, pos)
+        inf, frame = self.video_file.read()
+        return frame
+
+
 class BasisCurve:
     def __init__(self, curve_type, box, curve_param):
         self.lst_param = []
