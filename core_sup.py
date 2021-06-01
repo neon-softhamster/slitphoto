@@ -6,7 +6,7 @@ import os
 class VideoFile(cv2.VideoCapture):
     def __init__(self, path):
         super().__init__()
-        self.video_file = cv2.VideoCapture(path + "vid.mp4")  # Открытие видео
+        self.video_file = cv2.VideoCapture(path)  # Открытие видео
         if not self.video_file.isOpened():
             print("Can't open your video file")
 
