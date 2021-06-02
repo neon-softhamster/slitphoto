@@ -17,26 +17,38 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
         # button action of searching video file
         self.btn_explore_file.clicked.connect(self.search_name_file)
-        self.add_video_frames()
 
     def search_name_file(self):
         name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
-        self.path.setText(name_of_file[0])
+        # self.setText(name_of_file[0])
+        self.add_video_frames(name_of_file[0])
 
-    def add_video_frames(self):
+    def add_video_frames(self, name_of_file):
         # add fst and last frame to grid
-        frame_in_window1 = FrameInWindow(source, 100, 600, 400)  # Задается путь к файлу, номер кадра, шир. и высота
-        frame_in_window2 = FrameInWindow(source, 400, 600, 400)
-        frame_in_window1.add_frame2win("fst", self.grid)
-        frame_in_window2.add_frame2win("lst", self.grid)
+        frame_in_window = [FrameInWindow(name_of_file, 100, 600, 400, "fst"),
+                           FrameInWindow(name_of_file, 400, 600, 400, "lst")]   # Задается путь к файлу,
+        # номер кадра, шир. и высота
+
+        self.fst_frame.setPixmap(frame_in_window[0].qt_img)
+        self.lst_frame.setPixmap(frame_in_window[1].qt_img)
+
+        self.fst_frame_text.setText('First frame in your video')
+        self.grid.addWidget(self.fst_frame, 0, 0, Qt.AlignTop | Qt.AlignLeft)
+        self.grid.addWidget(self.fst_frame_text, 1, 0, Qt.AlignTop | Qt.AlignLeft)
+
+        self.lst_frame_text.setText('Last frame in your video')
+        self.grid.addWidget(self.lst_frame, 0, 2, Qt.AlignTop | Qt.AlignRight)
+        self.grid.addWidget(self.lst_frame_text, 1, 2, Qt.AlignTop | Qt.AlignRight)
+
         self.setLayout(self.grid)
 
 
 class FrameInWindow:
-    def __init__(self, src, frame_n, w, h):
+    def __init__(self, src, frame_n, w, h, numb):
         self.frame_n = frame_n
         self.w = w
         self.h = h
+        self.number = numb
 
         # open video_file for usage
         self.video_file = cs.VideoFile(src)
@@ -44,6 +56,8 @@ class FrameInWindow:
         # convert the image to Qt format
         self.qt_img = self._convert_cv_qt(self.video_file.get_special_frame(self.frame_n))
         # display it
+
+        self.video_file.__del__()
 
     def _convert_cv_qt(self, cv_img):
         # Convert from an opencv image to QPixmap
@@ -53,25 +67,6 @@ class FrameInWindow:
         convert_to_qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
         p = convert_to_qt_format.scaled(self.w, self.h, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
-
-    def add_frame2win(self, fst_or_lst, grid):
-        # create the label that holds the image
-        frame_label = QLabel()
-        frame_label.setPixmap(self.qt_img)
-        text_label = QLabel()
-        if fst_or_lst == "fst":
-            text_label.setText('First frame in your video')
-            grid.addWidget(frame_label, 0, 0, Qt.AlignTop | Qt.AlignLeft)
-            grid.addWidget(text_label, 1, 0, Qt.AlignTop | Qt.AlignLeft)
-        elif fst_or_lst == "lst":
-            text_label.setText('Last frame in your video')
-            grid.addWidget(frame_label, 0, 2, Qt.AlignTop | Qt.AlignRight)
-            grid.addWidget(text_label, 1, 2, Qt.AlignTop | Qt.AlignRight)
-        else:
-            print("FrameInWindow last arg can be \"fst\" or \"lst\" only")
-        text_label.setFont(QtGui.QFont('SansSerif', 18))
-
-        self.video_file.__del__()
 
 
 if __name__ == "__main__":
