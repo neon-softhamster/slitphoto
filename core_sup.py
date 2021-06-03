@@ -1,33 +1,34 @@
 import math as m
-import cv2
 import os
+from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, \
+    CAP_PROP_FPS
 
 
-class VideoFile(cv2.VideoCapture):
+class VideoFile():
     def __init__(self, path):
         super().__init__()
-        self.video_file = cv2.VideoCapture(path)  # Открытие видео
-        if not self.video_file.isOpened():
+        self.video_f = VideoCapture(path)  # Открытие видео
+        if self.video_f.isOpened() != True:
             print("Can't open your video file")
 
     def get_video_info(self):
-        frame_w = self.video_file.get(cv2.CAP_PROP_FRAME_WIDTH)  # Высота кадра
-        frame_h = self.video_file.get(cv2.CAP_PROP_FRAME_HEIGHT)  # Ширина кадра
-        frame_n = self.video_file.get(cv2.CAP_PROP_FRAME_COUNT)  # Количество кадров
-        frame_f = self.video_file.get(cv2.CAP_PROP_FPS)  # FPS
+        frame_w = self.video_f.get(CAP_PROP_FRAME_WIDTH)  # Высота кадра
+        frame_h = self.video_f.get(CAP_PROP_FRAME_HEIGHT)  # Ширина кадра
+        frame_n = self.video_f.get(CAP_PROP_FRAME_COUNT)  # Количество кадров
+        frame_f = self.video_f.get(CAP_PROP_FPS)  # FPS
 
         return [frame_w, frame_h, frame_n, frame_f]
 
     def get_video_flow(self):
-        return self.video_file
+        return self.video_f
 
     def get_special_frame(self, pos):
-        self.video_file.set(cv2.CAP_PROP_POS_FRAMES, pos)
-        inf, frame = self.video_file.read()
+        self.video_f.set(CAP_PROP_POS_FRAMES, pos)
+        inf, frame = self.video_f.read()
         return frame
 
     def __del__(self):
-        self.video_file.release()
+        self.video_f.release()
 
 
 class BasisCurve:
@@ -144,9 +145,9 @@ class PixelStorage:
 
 class Frame:
     def __init__(self, video, pix_storage):
-        video.set(cv2.CAP_PROP_POS_FRAMES, pix_storage.pix_index_table[0][0])
+        video.set(CAP_PROP_POS_FRAMES, pix_storage.pix_index_table[0][0])
         self.pet, self.result_frame = video.read()
-        video.set(cv2.CAP_PROP_POS_FRAMES, pix_storage.pix_index_table[0][0])
+        video.set(CAP_PROP_POS_FRAMES, pix_storage.pix_index_table[0][0])
         for i in range(pix_storage.get_nb_of_frames()):
             ret, frame = video.read()
             for j in range(pix_storage.pix_index_table[1][i]):
