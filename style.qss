@@ -1,0 +1,13 @@
+    QMainWindow{
+        background: #164151;
+    }
+    QPushButton#btn_explore_file{
+        border-radius: 10px;
+        background: #3A99BD;
+        border: 3px;
+        border-color: #62A4BD;
+        padding: 10px;
+    }
+    QPushButton#btn_explore_filehover{
+        background: #6A94D4;
+    }

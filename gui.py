@@ -116,22 +116,9 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
-    style = """
-    QMainWindow{
-        background: #164151;
-    }
-    QPushButton#btn_explore_file{
-        border-radius: 10px;
-        background: #3A99BD;
-        border: 3px;
-        border-color: #62A4BD;
-        padding: 10px;
-    }
-    QPushButton#btn_explore_file:hover{
-        background: #6A94D4;
-    }
-    """
-
+    with open("style.qss", "r") as s:
+        style = s.read()
+    
     app.setStyleSheet(style)
     mw = MainWindow()
     mw.show()
