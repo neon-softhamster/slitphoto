@@ -4,9 +4,8 @@ from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PRO
     CAP_PROP_FPS
 
 
-class VideoFile():
+class VideoFile:
     def __init__(self, path):
-        super().__init__()
         self.video_f = VideoCapture(path)  # Открытие видео
         if self.video_f.isOpened() != True:
             print("Can't open your video file")

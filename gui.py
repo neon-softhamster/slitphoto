@@ -1,7 +1,7 @@
 import core_sup as cs
 import gui_struture as gs
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import sys
@@ -16,6 +16,20 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.setupUi(self)
         self.name_of_file = ["", ""]
 
+        self.shadow = QGraphicsDropShadowEffect()
+        self.shadow.setBlurRadius(1)
+        self.shadow.setXOffset(5)
+        self.shadow.setYOffset(7)
+
+        # add stock img
+        self.fst_frame.setPixmap(QPixmap("resources\\fst.jpg"))
+        self.lst_frame.setPixmap(QPixmap("resources\\lst.jpg"))
+        self.fst_frame.setGraphicsEffect(self.shadow)
+        self.lst_frame.setGraphicsEffect(self.shadow)
+
+        # adding shadows
+        self.btn_explore_file.setGraphicsEffect(self.shadow)
+
         # button action of searching video file
         self.btn_explore_file.clicked.connect(self.search_name_file)
 
@@ -26,48 +40,41 @@ class MainWindow(QMainWindow, gs.Ui_Window):
     def search_name_file(self):
         self.name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
         if self.name_of_file[0] != "":
+            frame_in_window = [FrameInWindow(self.name_of_file[0], 0, 320, "fst"),
+                               FrameInWindow(self.name_of_file[0], 0, 320, "lst")]  # path to file, number of frame & h
+
+            self.set_frames_to_grid(frame_in_window)
+
             self.fst_frame_selector.setValue(0)
-            self.lst_frame_selector.setValue(0)
-            self.add_video_frames()
+            self.lst_frame_selector.setValue(int(frame_in_window[0].video_file.get_video_info()[2]))
+
+            # clean up all frames
+            for i in frame_in_window:
+                i.__del__()
         else:
             pass
-
-    def add_video_frames(self):
-        frame_in_window = [FrameInWindow(self.name_of_file[0], 1, 500, "fst"),
-                           FrameInWindow(self.name_of_file[0], 400, 500, "lst")]   # path to file, number of frame & w
-
-        self.set_frames_to_grid(frame_in_window)
-
-        # clean up all frames
-        for i in frame_in_window:
-            i.__del__()
 
     def set_frames_to_grid(self, frame_in_window):
         self.fst_frame.setPixmap(frame_in_window[0].qt_img)
         self.lst_frame.setPixmap(frame_in_window[1].qt_img)
 
         # add frames and text to grid
-        self.fst_frame_text.setText('First frame in your video')
         self.grid.addWidget(self.fst_frame, 0, 0)
-        self.grid.addWidget(self.fst_frame_text, 2, 0)
-
-        self.lst_frame_text.setText('Last frame in your video')
-        self.grid.addWidget(self.lst_frame, 0, 2)
-        self.grid.addWidget(self.lst_frame_text, 2, 2)
-
-        # self.setLayout(self.grid)
+        self.grid.addWidget(self.lst_frame, 0, 1)
 
         # set up selectors limits
-        self.fst_frame_selector.setMaximum(int(frame_in_window[0].video_file.get_video_info()[2]) - 1)
+        self.fst_frame_selector.setMaximum(self.lst_frame_selector.value())
+
+        self.lst_frame_selector.setMinimum(self.fst_frame_selector.value())
         self.lst_frame_selector.setMaximum(int(frame_in_window[0].video_file.get_video_info()[2]) - 1)
 
     def select_frame(self):
         if self.name_of_file[0] != "":
             print(round(self.fst_frame_selector.value()), round(self.lst_frame_selector.value()))
-            frame_in_window = [FrameInWindow(self.name_of_file[0], round(self.fst_frame_selector.value()),
-                                             500, "fst"),
-                               FrameInWindow(self.name_of_file[0], round(self.lst_frame_selector.value()),
-                                             500, "lst")]
+            frame_in_window = [FrameInWindow(self.name_of_file[0], self.fst_frame_selector.value(),
+                                             320, "fst"),
+                               FrameInWindow(self.name_of_file[0], self.lst_frame_selector.value(),
+                                             320, "lst")]
 
             self.set_frames_to_grid(frame_in_window)
 
@@ -97,7 +104,7 @@ class FrameInWindow:
         h, w, ch = rgb_image.shape
         bytes_per_line = ch * w
         convert_to_qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
-        p = convert_to_qt_format.scaled(self.h, round(self.aspect_ratio * self.h), Qt.KeepAspectRatio)
+        p = convert_to_qt_format.scaled(round(self.aspect_ratio * self.h), self.h, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
     def __del__(self):
@@ -109,6 +116,23 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
 
+    style = """
+    QMainWindow{
+        background: #164151;
+    }
+    QPushButton#btn_explore_file{
+        border-radius: 10px;
+        background: #3A99BD;
+        border: 3px;
+        border-color: #62A4BD;
+        padding: 10px;
+    }
+    QPushButton#btn_explore_file:hover{
+        background: #6A94D4;
+    }
+    """
+
+    app.setStyleSheet(style)
     mw = MainWindow()
     mw.show()
 
