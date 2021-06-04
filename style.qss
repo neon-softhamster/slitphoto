@@ -1,6 +1,7 @@
     QMainWindow{
         background: #164151;
     }
+
     QPushButton#btn_explore_file{
         border-radius: 10px;
         background: #3A99BD;
@@ -8,6 +9,33 @@
         border-color: #62A4BD;
         padding: 10px;
     }
-    QPushButton#btn_explore_filehover{
+
+    QPushButton#render_btn{
+        border-radius: 10px;
+        background: #59AC9E;
+        border: 3px;
+        border-color: #62A4BD;
+        padding: 10px;
+    }
+
+    QPushButton#how_to_btn{
+        border-radius: 10px;
+        background: #59AC9E;
+        border: 3px;
+        border-color: #62A4BD;
+        padding: 10px;
+    }
+
+    QPushButton#render_btn:hover{
+        background: #6A94D4;
+    }
+
+    QPushButton#how_to_btn:hover{
+        background: #6A94D4;
+    }
+
+
+
+    QPushButton#btn_explore_file:hover{
         background: #6A94D4;
     }

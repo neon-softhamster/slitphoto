@@ -16,19 +16,25 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.setupUi(self)
         self.name_of_file = ["", ""]
 
-        self.shadow = QGraphicsDropShadowEffect()
-        self.shadow.setBlurRadius(1)
-        self.shadow.setXOffset(5)
-        self.shadow.setYOffset(7)
+        shadow_effect = []
+
+        for i in range(5):
+            shadow_effect.append(QGraphicsDropShadowEffect())
+            shadow_effect[i].setBlurRadius(20)
+            shadow_effect[i].setXOffset(0)
+            shadow_effect[i].setYOffset(5)
+            shadow_effect[i].setColor(QtGui.QColor(40, 40, 40))
 
         # add stock img
         self.fst_frame.setPixmap(QPixmap("resources\\fst.jpg"))
         self.lst_frame.setPixmap(QPixmap("resources\\lst.jpg"))
-        self.fst_frame.setGraphicsEffect(self.shadow)
-        self.lst_frame.setGraphicsEffect(self.shadow)
+        self.fst_frame.setGraphicsEffect(shadow_effect[0])
+        self.lst_frame.setGraphicsEffect(shadow_effect[1])
 
         # adding shadows
-        self.btn_explore_file.setGraphicsEffect(self.shadow)
+        self.btn_explore_file.setGraphicsEffect(shadow_effect[2])
+        self.render_btn.setGraphicsEffect(shadow_effect[3])
+        self.how_to_btn.setGraphicsEffect(shadow_effect[4])
 
         # button action of searching video file
         self.btn_explore_file.clicked.connect(self.search_name_file)
