@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 import sys
 import cv2
 import os
+from range_slider import QRangeSlider
 
 
 class MainWindow(QMainWindow, gs.Ui_Window):
@@ -16,8 +17,11 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.setupUi(self)
         self.name_of_file = ["", ""]
 
-        shadow_effect = []
+        #adding slider
+        self.RS = QRangeSlider()
+        self.slider_layout.addWidget(self.RS)
 
+        shadow_effect = []
         for i in range(5):
             shadow_effect.append(QGraphicsDropShadowEffect())
             shadow_effect[i].setBlurRadius(20)
@@ -36,12 +40,13 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.render_btn.setGraphicsEffect(shadow_effect[3])
         self.how_to_btn.setGraphicsEffect(shadow_effect[4])
 
+        ### ACTIONS HERE ###
         # button action of searching video file
         self.btn_explore_file.clicked.connect(self.search_name_file)
 
         # slider actions
-        self.fst_frame_selector.sliderReleased.connect(self.select_frame)
-        self.lst_frame_selector.sliderReleased.connect(self.select_frame)
+        self.RS.endValueChanged.connect(self.select_frame)
+        self.RS.startValueChanged.connect(self.select_frame)
 
     def search_name_file(self):
         self.name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
@@ -51,8 +56,8 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
             self.set_frames_to_grid(frame_in_window)
 
-            self.fst_frame_selector.setValue(0)
-            self.lst_frame_selector.setValue(int(frame_in_window[0].video_file.get_video_info()[2]))
+            # update slider limits
+            # self.RS.setRange(0, int(frame_in_window[0].video_file.get_video_info()[2]))
 
             # clean up all frames
             for i in frame_in_window:
@@ -69,17 +74,13 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.grid.addWidget(self.lst_frame, 0, 1)
 
         # set up selectors limits
-        self.fst_frame_selector.setMaximum(self.lst_frame_selector.value())
-
-        self.lst_frame_selector.setMinimum(self.fst_frame_selector.value())
-        self.lst_frame_selector.setMaximum(int(frame_in_window[0].video_file.get_video_info()[2]) - 1)
 
     def select_frame(self):
         if self.name_of_file[0] != "":
-            print(round(self.fst_frame_selector.value()), round(self.lst_frame_selector.value()))
-            frame_in_window = [FrameInWindow(self.name_of_file[0], self.fst_frame_selector.value(),
+            print(round(self.RS.getRange()[0]), round(self.RS.getRange()[1]))
+            frame_in_window = [FrameInWindow(self.name_of_file[0], self.RS.getRange()[0],
                                              320, "fst"),
-                               FrameInWindow(self.name_of_file[0], self.lst_frame_selector.value(),
+                               FrameInWindow(self.name_of_file[0], self.RS.getRange()[1],
                                              320, "lst")]
 
             self.set_frames_to_grid(frame_in_window)

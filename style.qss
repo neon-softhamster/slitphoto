@@ -9,6 +9,9 @@
         border-color: #62A4BD;
         padding: 10px;
     }
+    QPushButton#btn_explore_file:hover{
+        background: #6A94D4;
+    }
 
     QPushButton#render_btn{
         border-radius: 10px;
@@ -16,6 +19,9 @@
         border: 3px;
         border-color: #62A4BD;
         padding: 10px;
+    }
+    QPushButton#render_btn:hover{
+        background: #6A94D4;
     }
 
     QPushButton#how_to_btn{
@@ -25,17 +31,36 @@
         border-color: #62A4BD;
         padding: 10px;
     }
-
-    QPushButton#render_btn:hover{
-        background: #6A94D4;
-    }
-
     QPushButton#how_to_btn:hover{
         background: #6A94D4;
     }
 
+    QRadioButton{
+        color: #33CCCC;
+    }
 
-
-    QPushButton#btn_explore_file:hover{
-        background: #6A94D4;
+    QRangeSlider {
+        border: 4px;
+        padding: 10px;
+    }
+    QRangeSlider #Head {
+        background: #1C4A60;
+    }
+    QRangeSlider #Span {
+        background: #31C0A8;
+    }
+    QRangeSlider #Span:active {
+        background: #186054;
+    }
+    QRangeSlider #Tail {
+        background: #1C4A60;
+    }
+    QRangeSlider > QSplitter::handle {
+        background: #31C0A8;
+    }
+    QRangeSlider > QSplitter::handle:vertical {
+        height: 2px;
+    }
+    QRangeSlider > QSplitter::handle:pressed {
+        background: #31C0A8;
     }

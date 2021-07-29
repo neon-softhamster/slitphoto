@@ -6,17 +6,16 @@ from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PRO
 
 class VideoFile:
     def __init__(self, path):
-        self.video_f = VideoCapture(path)  # Открытие видео
-        if self.video_f.isOpened() != True:
-            print("Can't open your video file")
+        if path == "":
+            self.video_f = VideoCapture()  # Открытие видео
+        else:
+            self.video_f = VideoCapture(path)
 
     def get_video_info(self):
-        frame_w = self.video_f.get(CAP_PROP_FRAME_WIDTH)  # Высота кадра
-        frame_h = self.video_f.get(CAP_PROP_FRAME_HEIGHT)  # Ширина кадра
-        frame_n = self.video_f.get(CAP_PROP_FRAME_COUNT)  # Количество кадров
-        frame_f = self.video_f.get(CAP_PROP_FPS)  # FPS
-
-        return [frame_w, frame_h, frame_n, frame_f]
+        return [self.video_f.get(CAP_PROP_FRAME_WIDTH),     # Высота кадра
+                self.video_f.get(CAP_PROP_FRAME_HEIGHT),    # Высота кадра
+                self.video_f.get(CAP_PROP_FRAME_COUNT),     # Количество кадров
+                self.video_f.get(CAP_PROP_FPS)]             # FPS
 
     def get_video_flow(self):
         return self.video_f
