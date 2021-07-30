@@ -8,8 +8,6 @@ dist/
 main.spec
 vid.mp4
 vid2.mp4
-gui_template.ui
 gui.spec
 venv/Scripts/
 venv/pyvenv.cfg
-venv/

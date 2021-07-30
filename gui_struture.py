@@ -518,6 +518,16 @@ class Ui_Window(object):
         self.slider_layout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.slider_layout.setContentsMargins(0, 0, 0, 0)
         self.slider_layout.setObjectName("slider_layout")
+        self.setup_btn = QtWidgets.QPushButton(self.App)
+        self.setup_btn.setGeometry(QtCore.QRect(870, 630, 151, 51))
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift SemiBold")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.setup_btn.setFont(font)
+        self.setup_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.setup_btn.setObjectName("setup_btn")
         Window.setCentralWidget(self.App)
 
         self.retranslateUi(Window)
@@ -531,13 +541,4 @@ class Ui_Window(object):
         self.how_to_btn.setText(_translate("Window", "How to"))
         self.render_btn.setText(_translate("Window", "Go!"))
         self.moves_radio_btn_2.setText(_translate("Window", "Moving slit"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Window = QtWidgets.QMainWindow()
-    ui = Ui_Window()
-    ui.setupUi(Window)
-    Window.show()
-    sys.exit(app.exec_())
+        self.setup_btn.setText(_translate("Window", "Setup"))
