@@ -2,6 +2,7 @@ import math as m
 import os
 from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, \
     CAP_PROP_FPS
+import cv2
 
 
 class VideoFile:
@@ -12,7 +13,7 @@ class VideoFile:
             self.video_f = VideoCapture(path)
 
     def get_video_info(self):
-        return [self.video_f.get(CAP_PROP_FRAME_WIDTH),     # Высота кадра
+        return [self.video_f.get(CAP_PROP_FRAME_WIDTH),     # Ширина кадра
                 self.video_f.get(CAP_PROP_FRAME_HEIGHT),    # Высота кадра
                 self.video_f.get(CAP_PROP_FRAME_COUNT),     # Количество кадров
                 self.video_f.get(CAP_PROP_FPS)]             # FPS
@@ -161,11 +162,11 @@ class Frame:
 # noinspection PySimplifyBooleanCheck
 def save_result_frame(source, final_frame):
     i = 1
-    if os.path.exists(source + "Results") == True:
-        while os.path.exists(source + "Results\\Pic_" + str(i) + ".png") == True:
+    if os.path.exists(source + "\\Results") is True:
+        while os.path.exists(source + "\\Results\\Pic_" + str(i) + ".png") is True:
             i += 1
         else:
-            cv2.imwrite(source + "Results\\Pic_" + str(i) + ".png", final_frame)
+            cv2.imwrite(source + "\\Results\\Pic_" + str(i) + ".png", final_frame)
     else:
-        os.mkdir(source + "Results")
-        cv2.imwrite(source + "Results\\Pic_1.png", final_frame)
+        os.mkdir(source + "\\Results")
+        cv2.imwrite(source + "\\Results\\Pic_1.png", final_frame)

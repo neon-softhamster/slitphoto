@@ -1,15 +1,51 @@
 import core_sup as cs
+import  core as c
 import gui_struture as gs
+import classic_setup_win as csw
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import sys
+import random
 import cv2
 from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, \
     CAP_PROP_FPS, CAP_PROP_XI_DOWNSAMPLING
 import os
 from range_slider import QRangeSlider
+
+
+def shadows(self):
+    # generates shadow effects for buttons
+    self.shadow_effect = []
+    for i in range(6):
+        self.shadow_effect.append(QGraphicsDropShadowEffect())
+        self.shadow_effect[i].setBlurRadius(20)
+        self.shadow_effect[i].setXOffset(0)
+        self.shadow_effect[i].setYOffset(5)
+        self.shadow_effect[i].setColor(QtGui.QColor(40, 40, 40))
+    return self.shadow_effect
+
+
+class ClassicSetupWin(QWidget, csw.Ui_Setup):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setupUi(self)
+
+        # generates list of shadow effects
+        self.shadow_effect = shadows(self)
+
+        # adding shadows
+        self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+
+        # ACTIONS #
+        self.save_btn.clicked.connect(self.transnsmit_setup_to_mainwin)
+
+    def transnsmit_setup_to_mainwin(self):
+        mw.slit_position = int(self.slit_pos_text_field.text())
+        mw.render_btn.setEnabled(True)
+        mw.mode = "CLASSIC_SLIT"
 
 
 class MainWindow(QMainWindow, gs.Ui_Window):
@@ -21,14 +57,12 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.n0 = 0
         self.pic = QPixmap()
 
-        # generates shadow effects for buttons
-        self.shadow_effect = []
-        for i in range(6):
-            self.shadow_effect.append(QGraphicsDropShadowEffect())
-            self.shadow_effect[i].setBlurRadius(20)
-            self.shadow_effect[i].setXOffset(0)
-            self.shadow_effect[i].setYOffset(5)
-            self.shadow_effect[i].setColor(QtGui.QColor(40, 40, 40))
+        # classic SETUP parameters
+        self.slit_position = 0
+        self.mode = ""
+
+        # generates list of shadow effects
+        self.shadow_effect = shadows(self)
 
         # add stock img
         self.fst_frame.setPixmap(QPixmap("resources\\fst.jpg"))
@@ -67,6 +101,44 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.classics_radio_btn.clicked.connect(self.setup_btn_activation)
         self.moves_radio_btn_2.clicked.connect(self.setup_btn_activation)
 
+        # setup button action
+        self.setup_btn.clicked.connect(self.open_setup)
+
+        # Go button action
+        self.render_btn.clicked.connect(self.render)
+
+    def render(self):
+        if self.mode == "CLASSIC_SLIT":
+            cv2.setUseOptimized(cv2.useOptimized())
+            video_file = cs.VideoFile(self.name_of_file[0])
+            vid = video_file.get_video_flow()
+            frame_info = video_file.get_video_info()
+
+            a = cs.BasisCurve('LIN',
+                              [frame_info[0],
+                               frame_info[1],
+                               self.RS.getRange()[0],
+                               self.RS.getRange()[1]],
+                              [5, 0, 0])
+            [mat_a, pix_storage_a] = a.get_surface()
+            final_frame = cs.Frame(vid, pix_storage_a)
+
+            cs.save_result_frame(os.getcwd(), final_frame.get_frame())
+        else:
+            pass
+
+    def open_setup(self):
+        global setup_win
+        setup_win = ClassicSetupWin()
+        setup_win.setStyleSheet(style)
+        setup_win.show()
+
+        # transmit data from MainWindow to SetupWindow
+        setup_win.frame_width_label.setText("<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
+        setup_win.frame_layout.addWidget(self.fst_frame)
+        setup_win.slit_pos_text_field.setText(str(random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH)))))
+        self.set_frames_to_grid(self.RS.getRange()[0], self.RS.getRange()[1])
+
     def search_name_file(self):
         self.name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
         if self.name_of_file[0] != "":
@@ -103,7 +175,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
     # Convert from an opencv image to QPixmap (necessary to add pic to qt layout)
     def convert_cv2qt(self, height, n):  # input is height (ip pixels), that will be in window, n - nb of frame
-        if (abs(self.n0 - n) > 10):
+        if (abs(self.n0 - n) > 8):
             self.video_f.set(CAP_PROP_POS_FRAMES, n)    # go to n frame
             self.n0 = n
             inf, cv_img = self.video_f.read()   # reading frame to cv pic
@@ -127,8 +199,6 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
 
 if __name__ == "__main__":
-    source = os.getcwd() + "\\.vid.mp4"
-
     app = QApplication(sys.argv)
 
     with open("style.qss", "r") as s:
