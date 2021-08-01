@@ -2,6 +2,7 @@ import core_sup as cs
 import  core as c
 import gui_struture as gs
 import classic_setup_win as csw
+import moving_setup_win as msw
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
 from PyQt5.QtGui import QPixmap
@@ -45,7 +46,30 @@ class ClassicSetupWin(QWidget, csw.Ui_Setup):
     def transnsmit_setup_to_mainwin(self):
         mw.slit_position = int(self.slit_pos_text_field.text())
         mw.render_btn.setEnabled(True)
-        mw.mode = "CLASSIC_SLIT"
+        mw.mode = "CLASSIC"
+        self.close()
+
+
+class MovingSetupWin(QWidget, msw.Ui_Setup):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setupUi(self)
+
+        # generates list of shadow effects
+        self.shadow_effect = shadows(self)
+
+        # adding shadows
+        self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+
+        # ACTIONS #
+        self.save_btn.clicked.connect(self.transnsmit_setup_to_mainwin)
+
+    def transnsmit_setup_to_mainwin(self):
+        mw.lin_params = [float(self.x_inclin.text()), float(self.y_inclin.text()), float(self.t_shift.text())]
+        mw.render_btn.setEnabled(True)
+        mw.mode = "LIN"
+        self.close()
 
 
 class MainWindow(QMainWindow, gs.Ui_Window):
@@ -56,10 +80,15 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.name_of_file = ["", ""]
         self.n0 = 0
         self.pic = QPixmap()
+        self.mode = ""
+
+        # creates setup window
+        self.classic_setup_win = ClassicSetupWin()
+        self.moving_setup_win = MovingSetupWin()
 
         # classic SETUP parameters
         self.slit_position = 0
-        self.mode = ""
+        self.lin_params = [0.1, 0.1, 0]
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
@@ -95,7 +124,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.RS.endValueChanged.connect(self.select_frame)
         self.RS.startValueChanged.connect(self.select_frame)
 
-        # activating setup anf go buttons
+        # activating setup and go buttons
         self.isSetupSelected = False
         self.isVideoLoaded = False
         self.classics_radio_btn.clicked.connect(self.setup_btn_activation)
@@ -107,37 +136,66 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         # Go button action
         self.render_btn.clicked.connect(self.render)
 
+        # mode selection
+        self.classics_radio_btn.clicked.connect(self.classic_mode_selected)
+        self.moves_radio_btn_2.clicked.connect(self.moving_mode_selected)
+
+    def classic_mode_selected(self):
+        self.mode = "CLASSIC"
+
+    def moving_mode_selected(self):
+        self.mode = "LIN"
+
     def render(self):
-        if self.mode == "CLASSIC_SLIT":
-            cv2.setUseOptimized(cv2.useOptimized())
+        if self.mode == "CLASSIC":
             video_file = cs.VideoFile(self.name_of_file[0])
             vid = video_file.get_video_flow()
             frame_info = video_file.get_video_info()
 
-            a = cs.BasisCurve('LIN',
+            final_frame = cs.Frame(vid, self.slit_position, self.mode, [self.RS.getRange()[0], self.RS.getRange()[1]])
+
+            # saves picture to /Result folder
+            cs.save_result_frame(final_frame.get_frame())
+
+            # When everything done, release the video capture object
+            vid.release()
+        elif self.mode == "LIN":
+            video_file = cs.VideoFile(self.name_of_file[0])
+            vid = video_file.get_video_flow()
+            frame_info = video_file.get_video_info()
+
+            a = cs.BasisCurve(self.mode,
                               [frame_info[0],
                                frame_info[1],
                                self.RS.getRange()[0],
                                self.RS.getRange()[1]],
-                              [5, 0, 0])
+                               self.lin_params)
             [mat_a, pix_storage_a] = a.get_surface()
-            final_frame = cs.Frame(vid, pix_storage_a)
+            final_frame = cs.Frame(vid, pix_storage_a, self.mode, [self.RS.getRange()[0], self.RS.getRange()[1]])
 
-            cs.save_result_frame(os.getcwd(), final_frame.get_frame())
-        else:
-            pass
+            # saves picture to /Result folder
+            cs.save_result_frame(final_frame.get_frame())
+
+            # When everything done, release the video capture object
+            vid.release()
 
     def open_setup(self):
-        global setup_win
-        setup_win = ClassicSetupWin()
-        setup_win.setStyleSheet(style)
-        setup_win.show()
+        if self.mode == "CLASSIC":
+            self.classic_setup_win.setStyleSheet(style)
+            self.classic_setup_win.show()
 
-        # transmit data from MainWindow to SetupWindow
-        setup_win.frame_width_label.setText("<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
-        setup_win.frame_layout.addWidget(self.fst_frame)
-        setup_win.slit_pos_text_field.setText(str(random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH)))))
-        self.set_frames_to_grid(self.RS.getRange()[0], self.RS.getRange()[1])
+            # transmit data from MainWindow to SetupWindow
+            self.classic_setup_win.frame_width_label.setText("<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
+            # self.classic_setup_win.frame_layout.addWidget(self.fst_frame)
+            self.classic_setup_win.slit_pos_text_field.setValue(random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH))))
+            self.set_frames_to_grid(self.RS.getRange()[0], self.RS.getRange()[1])
+        elif self.mode == "LIN":
+            self.moving_setup_win.setStyleSheet(style)
+            self.moving_setup_win.show()
+
+            # transmit data from MainWindow to SetupWindow
+            self.moving_setup_win.frame_width_label.setText(
+                "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
 
     def search_name_file(self):
         self.name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
@@ -199,6 +257,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
 
 if __name__ == "__main__":
+    cv2.setUseOptimized(cv2.useOptimized())
     app = QApplication(sys.argv)
 
     with open("style.qss", "r") as s:

@@ -69,7 +69,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Slit position:</string>
+    <string>Inclination 1:</string>
    </property>
   </widget>
   <widget class="QLabel" name="frame_width_label">
@@ -99,12 +99,12 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QDoubleSpinBox" name="slit_pos_text_field">
+  <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>290</x>
      <y>620</y>
-     <width>131</width>
+     <width>151</width>
      <height>51</height>
     </rect>
    </property>
@@ -116,14 +116,101 @@
      <bold>true</bold>
     </font>
    </property>
-   <property name="suffix">
-    <string notr="true"/>
+   <property name="text">
+    <string>Inclination 2:</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="x_inclin">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>620</y>
+     <width>101</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Bahnschrift SemiBold</family>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="minimum">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>10.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="y_inclin">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>620</y>
+     <width>101</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Bahnschrift SemiBold</family>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="minimum">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>10.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>620</y>
+     <width>61</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Bahnschrift SemiBold</family>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Shift:</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="t_shift">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>620</y>
+     <width>101</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Bahnschrift SemiBold</family>
+     <pointsize>14</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
    </property>
    <property name="decimals">
     <number>0</number>
    </property>
    <property name="maximum">
-    <double>10000.000000000000000</double>
+    <double>100000.000000000000000</double>
    </property>
   </widget>
  </widget>
