@@ -19,8 +19,10 @@ import random
 import cv2
 from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
 
-# range slider made by
-from range_slider import QRangeSlider
+# range slider made by Talley Lambert (https://github.com/tlambert03/QtRangeSlider)
+from qtrangeslider._labeled import QLabeledRangeSlider
+from qtrangeslider.qtcompat.QtCore import Qt
+from qtrangeslider.qtcompat.QtWidgets import QApplication, QWidget
 
 
 # Объект, который будет перенесён в другой поток для выполнения кода
@@ -39,7 +41,7 @@ class RenderThread(QtCore.QObject):
             vid = video_file.get_video_flow()
             frame_info = video_file.get_video_info()
 
-            final_frame = cs.Frame(vid, mw.slit_position, mw.mode, [mw.RS.getRange()[0], mw.RS.getRange()[1]])
+            final_frame = cs.Frame(vid, mw.slit_position, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
             cs.save_result_frame(final_frame.get_frame())
@@ -51,13 +53,12 @@ class RenderThread(QtCore.QObject):
             vid = video_file.get_video_flow()
             frame_info = video_file.get_video_info()
 
-            a = cs.BasisCurve(mw.mode, [frame_info[0], frame_info[1],
-                              mw.RS.getRange()[0],
-                              mw.RS.getRange()[1]],
+            a = cs.BasisCurve(mw.mode,
+                              [frame_info[0], frame_info[1], mw.RS.value()[0], mw.RS.value()[1]],
                               mw.lin_params)
             [mat_a, pix_storage_a] = a.get_surface()
             a.__del__()
-            final_frame = cs.Frame(vid, pix_storage_a, mw.mode, [mw.RS.getRange()[0], mw.RS.getRange()[1]])
+            final_frame = cs.Frame(vid, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
             cs.save_result_frame(final_frame.get_frame())
@@ -169,7 +170,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.setup_btn.setEnabled(False)
 
         # adding slider
-        self.RS = QRangeSlider()
+        self.RS = QLabeledRangeSlider(Qt.Horizontal)
 
         # creates CV2 video, so it can be reached from any func or meth of program. Also no need to read file every
         # time you want to change frame
@@ -178,10 +179,6 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         # ACTIONS HERE #
         # button action of searching video file
         self.btn_explore_file.clicked.connect(self.search_name_file)
-
-        # slider actions
-        self.RS.endValueChanged.connect(self.select_frame)
-        self.RS.startValueChanged.connect(self.select_frame)
 
         # activating setup and go buttons
         self.isSetupSelected = False
@@ -198,6 +195,9 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         # mode selection
         self.classics_radio_btn.clicked.connect(self.classic_mode_selected)
         self.moves_radio_btn_2.clicked.connect(self.moving_mode_selected)
+
+        # slider moved
+        self.RS.valueChanged.connect(self.select_frame)
 
     # changes mode to classic
     def classic_mode_selected(self):
@@ -236,7 +236,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
             # self.classic_setup_win.frame_layout.addWidget(self.fst_frame)
             self.classic_setup_win.slit_pos_text_field.setValue(
                 random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH))))
-            self.set_frames_to_grid(self.RS.getRange()[0], self.RS.getRange()[1])
+            self.set_frames_to_grid(self.RS.value()[0], self.RS.value()[1])
         elif self.mode == "LIN":
             self.moving_setup_win.setStyleSheet(style)
             self.moving_setup_win.show()
@@ -258,14 +258,10 @@ class MainWindow(QMainWindow, gs.Ui_Window):
             self.slider_layout.addWidget(self.RS)
 
             # update slider limits
-            self.RS.setMin(0)
-            self.RS.setMax(int(self.video_f.get(CAP_PROP_FRAME_COUNT)))
+            self.RS.setRange(0, int(self.video_f.get(CAP_PROP_FRAME_COUNT)) - 1)
+            self.RS.setValue((20, 60))
 
-            # this lines change values of range sliders, so triggers call to set_frames_to_grid func and, sometimes,
-            # set_frames_to_grid asks for wrong frames
-            # self.RS.setStart(50)
-            # self.RS.setEnd(int(self.video_f.get(CAP_PROP_FRAME_COUNT) - 50))
-            self.set_frames_to_grid(50, int(self.video_f.get(CAP_PROP_FRAME_COUNT) - 50))
+            self.set_frames_to_grid(self.RS.value()[0], self.RS.value()[1])
         else:
             pass
 
@@ -279,7 +275,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.grid.addWidget(self.lst_frame, 0, 1)
 
     def select_frame(self):
-        self.set_frames_to_grid(self.RS.getRange()[0], self.RS.getRange()[1])
+        self.set_frames_to_grid(self.RS.value()[0], self.RS.value()[1])
 
     # Convert from an opencv image to QPixmap (necessary to add pic to qt layout)
     def convert_cv2qt(self, height, n):  # input is height (ip pixels), that will be in window, n - nb of frame

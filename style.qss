@@ -1,3 +1,7 @@
+	QRangeSlider {
+		qproperty-barColor: #228751;
+	}
+
 	ClassicSetupWin{
         background: #353535;
     }

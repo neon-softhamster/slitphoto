@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_template.ui'
+# Form implementation generated from reading ui file 'main_win_template.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -512,12 +512,6 @@ class Ui_Window(object):
         font.setWeight(75)
         self.moves_radio_btn_2.setFont(font)
         self.moves_radio_btn_2.setObjectName("moves_radio_btn_2")
-        self.verticalLayoutWidget = QtWidgets.QWidget(self.App)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(20, 450, 1181, 41))
-        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.slider_layout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
-        self.slider_layout.setContentsMargins(0, 0, 0, 0)
-        self.slider_layout.setObjectName("slider_layout")
         self.setup_btn = QtWidgets.QPushButton(self.App)
         self.setup_btn.setGeometry(QtCore.QRect(870, 630, 151, 51))
         font = QtGui.QFont()
@@ -528,6 +522,12 @@ class Ui_Window(object):
         self.setup_btn.setFont(font)
         self.setup_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.setup_btn.setObjectName("setup_btn")
+        self.horizontalLayoutWidget = QtWidgets.QWidget(self.App)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(30, 450, 1161, 41))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+        self.slider_layout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
+        self.slider_layout.setContentsMargins(0, 0, 0, 0)
+        self.slider_layout.setObjectName("slider_layout")
         Window.setCentralWidget(self.App)
 
         self.retranslateUi(Window)
@@ -535,7 +535,7 @@ class Ui_Window(object):
 
     def retranslateUi(self, Window):
         _translate = QtCore.QCoreApplication.translate
-        Window.setWindowTitle(_translate("Window", "SlitPhoto v0.01"))
+        Window.setWindowTitle(_translate("Window", "SlitPhoto v0.1"))
         self.btn_explore_file.setText(_translate("Window", "Explore video file"))
         self.classics_radio_btn.setText(_translate("Window", "Classic slit"))
         self.how_to_btn.setText(_translate("Window", "How to"))

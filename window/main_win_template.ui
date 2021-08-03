@@ -444,7 +444,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>SlitPhoto v0.01</string>
+   <string>SlitPhoto v0.1</string>
   </property>
   <widget class="QWidget" name="App">
    <widget class="QWidget" name="gridLayoutWidget">
@@ -1477,17 +1477,6 @@
      <string>Moving slit</string>
     </property>
    </widget>
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>450</y>
-      <width>1181</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="slider_layout"/>
-   </widget>
    <widget class="QPushButton" name="setup_btn">
     <property name="geometry">
      <rect>
@@ -1511,6 +1500,17 @@
     <property name="text">
      <string>Setup</string>
     </property>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>450</y>
+      <width>1161</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="slider_layout"/>
    </widget>
   </widget>
  </widget>
