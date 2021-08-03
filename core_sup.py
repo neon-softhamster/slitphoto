@@ -130,18 +130,10 @@ class PixelStorage:
             for y_i in range(int(frame_param[1])):
                 self.pix_index_table[1][int(mat[x_i][y_i] - self.t1)] += 1
                 self.empty.append([0] * int(self.t2 - self.t1 + 1))
-                try:
-                    self.pix_index_table[1 +
-                                         self.pix_index_table[1][int(mat[x_i][y_i] -
-                                                                     self.t1)]][int(mat[x_i][y_i] -
-                                                                                    self.t1)] = [x_i, y_i]
-                except:
+                if self.pix_index_table[1][int(mat[x_i][y_i] - self.t1)] > len(self.pix_index_table) - 2:
                     self.pix_index_table = self.pix_index_table + self.empty
                     self.empty = []
-                    self.pix_index_table[1 +
-                                         self.pix_index_table[1][int(mat[x_i][y_i] -
-                                                                     self.t1)]][int(mat[x_i][y_i] -
-                                                                                    self.t1)] = [x_i, y_i]
+                self.pix_index_table[1 + self.pix_index_table[1][int(mat[x_i][y_i] - self.t1)]][int(mat[x_i][y_i] - self.t1)] = [x_i, y_i]
 
     def get_nb_of_frames(self):
         return int(self.t2 - self.t1) + 1
