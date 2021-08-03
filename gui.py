@@ -1,17 +1,18 @@
 import core_sup as cs
 
 # windows after qt designer
-import main_win as gs
-import classic_setup_win as csw
-import moving_setup_win as msw
+import window.main_win as gs
+import window.classic_setup_win as csw
+import window.moving_setup_win as msw
 
 # Qt imports
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 # other useful stuff
+import time
 import os
 import sys
 import random
@@ -23,9 +24,16 @@ from range_slider import QRangeSlider
 
 
 # Объект, который будет перенесён в другой поток для выполнения кода
-class Thread2Render(QtCore.QObject):
-    # метод, который будет выполнять алгоритм в другом потоке
+class RenderThread(QtCore.QObject):
+    def __init__(self, *args, **kwargs):
+        super(RenderThread, self).__init__(*args, **kwargs)
+        self.threadactive = True
+
     def run(self):
+        # change status of Go! button (it goes inactive)
+        mw.render_btn.setText("Wait")
+        mw.render_btn.setEnabled(False)
+
         if mw.mode == "CLASSIC":
             video_file = cs.VideoFile(mw.name_of_file[0])
             vid = video_file.get_video_flow()
@@ -56,6 +64,10 @@ class Thread2Render(QtCore.QObject):
 
             # When everything done, release the video capture object
             vid.release()
+
+        # change status of Go! button (makes it active)
+        mw.render_btn.setText("Go!")
+        mw.render_btn.setEnabled(True)
 
 
 # generates shadow effects for buttons. Used in all windows
@@ -130,11 +142,6 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.pic = QPixmap()
         self.mode = ""
 
-        # создадим поток
-        self.thread = QtCore.QThread()
-        # создадим объект для выполнения кода в другом потоке
-        self.thread_obj = Thread2Render()
-
         # creates setup window
         self.classic_setup_win = ClassicSetupWin()
         self.moving_setup_win = MovingSetupWin()
@@ -202,11 +209,19 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
     # function starts when Go! button clicked. This starts making final picture
     def render_frame(self):
-        # перенесём объект в другой поток
+        # create thread
+        self.thread = QtCore.QThread()
+
+        # object to do things in thread
+        self.thread_obj = RenderThread()
+
+        # replace object to thread
         self.thread_obj.moveToThread(self.thread)
-        # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
+
+        # # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
         self.thread.started.connect(self.thread_obj.run)
-        # запустим поток
+
+        # start thread
         self.thread.start()
 
     # Opens one of the setup windows (which one depends on selected mode)
