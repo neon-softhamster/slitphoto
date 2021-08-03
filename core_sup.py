@@ -34,12 +34,16 @@ class VideoFile:
 class BasisCurve:
     def __init__(self, curve_type, box, curve_param):
         self.lst_param = []
-        self.param = curve_param  # param - list [k1, k2, k3]
-        self.type = curve_type  # curve_type = CLASSIC, LIN, GAUSS or SIN
-        self.lst_box = box  # box - [frame_w, frame_h, 1st frame in box, last frame in box]
-        self.mat = []
+        self.type = curve_type          # curve_type = CLASSIC, LIN, GAUSS or SIN
+        self.lst_box = box              # box - [frame_w, frame_h, 1st frame in box, last frame in box]
         self.min = box[3]
         self.max = box[2]
+        self.param = curve_param        # param - list [k1, k2, k3, ...] (number of them depends on self.type)
+
+        self.mat = []                   # matrix for further picture
+        # generation of matrix (surface in discrete space) with h = height of frame and w = width of frame
+        for i in range(int(self.lst_box[0])):
+            self.mat.append([0] * int(self.lst_box[1]))
 
         # creates list of parameters for current type of curve
         if self.type == 'LIN':
@@ -55,6 +59,9 @@ class BasisCurve:
         # initiation of list of parameters
         for i in range(len(self.param)):
             self.lst_param[i] = self.param[i]
+
+    def __del__(self):
+        pass
 
     # if curve value is higher or lower than t_min or t_max, cut this peaks
     def _cut_peaks(self, t):
@@ -77,10 +84,6 @@ class BasisCurve:
         return t
 
     def _calc_surface(self):
-        # generation of matrix (surface in discrete space) with h = height of frame and w = width of frame
-        for i in range(int(self.lst_box[0])):
-            self.mat.append([0] * int(self.lst_box[1]))
-
         if self.type == 'LIN':
             for x in range(int(self.lst_box[0])):
                 for y in range(int(self.lst_box[1])):
@@ -170,7 +173,7 @@ class Frame:
         return self.result_frame
 
 
-# noinspection PySimplifyBooleanCheck
+# Saves final_frame to /Results folder
 def save_result_frame(final_frame):
     i = 1
     if os.path.exists(os.getcwd() + "\\Results") is True:

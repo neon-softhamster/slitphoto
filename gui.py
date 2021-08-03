@@ -6,9 +6,9 @@ import classic_setup_win as csw
 import moving_setup_win as msw
 
 # Qt imports
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
 from PyQt5.QtCore import Qt
 
 # other useful stuff
@@ -20,6 +20,42 @@ from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PRO
 
 # range slider made by
 from range_slider import QRangeSlider
+
+
+# Объект, который будет перенесён в другой поток для выполнения кода
+class Thread2Render(QtCore.QObject):
+    # метод, который будет выполнять алгоритм в другом потоке
+    def run(self):
+        if mw.mode == "CLASSIC":
+            video_file = cs.VideoFile(mw.name_of_file[0])
+            vid = video_file.get_video_flow()
+            frame_info = video_file.get_video_info()
+
+            final_frame = cs.Frame(vid, mw.slit_position, mw.mode, [mw.RS.getRange()[0], mw.RS.getRange()[1]])
+
+            # saves picture to /Result folder (creates folder if there is no such folder)
+            cs.save_result_frame(final_frame.get_frame())
+
+            # When everything done, release the video capture object
+            vid.release()
+        elif mw.mode == "LIN":
+            video_file = cs.VideoFile(mw.name_of_file[0])
+            vid = video_file.get_video_flow()
+            frame_info = video_file.get_video_info()
+
+            a = cs.BasisCurve(mw.mode, [frame_info[0], frame_info[1],
+                              mw.RS.getRange()[0],
+                              mw.RS.getRange()[1]],
+                              mw.lin_params)
+            [mat_a, pix_storage_a] = a.get_surface()
+            a.__del__()
+            final_frame = cs.Frame(vid, pix_storage_a, mw.mode, [mw.RS.getRange()[0], mw.RS.getRange()[1]])
+
+            # saves picture to /Result folder (creates folder if there is no such folder)
+            cs.save_result_frame(final_frame.get_frame())
+
+            # When everything done, release the video capture object
+            vid.release()
 
 
 # generates shadow effects for buttons. Used in all windows
@@ -94,6 +130,11 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.pic = QPixmap()
         self.mode = ""
 
+        # создадим поток
+        self.thread = QtCore.QThread()
+        # создадим объект для выполнения кода в другом потоке
+        self.thread_obj = Thread2Render()
+
         # creates setup window
         self.classic_setup_win = ClassicSetupWin()
         self.moving_setup_win = MovingSetupWin()
@@ -161,35 +202,12 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
     # function starts when Go! button clicked. This starts making final picture
     def render_frame(self):
-        if self.mode == "CLASSIC":
-            video_file = cs.VideoFile(self.name_of_file[0])
-            vid = video_file.get_video_flow()
-            frame_info = video_file.get_video_info()
-
-            final_frame = cs.Frame(vid, self.slit_position, self.mode, [self.RS.getRange()[0], self.RS.getRange()[1]])
-
-            # saves picture to /Result folder (creates folder if there is no such folder)
-            cs.save_result_frame(final_frame.get_frame())
-
-            # When everything done, release the video capture object
-            vid.release()
-        elif self.mode == "LIN":
-            video_file = cs.VideoFile(self.name_of_file[0])
-            vid = video_file.get_video_flow()
-            frame_info = video_file.get_video_info()
-
-            a = cs.BasisCurve(self.mode, [frame_info[0], frame_info[1],
-                              self.RS.getRange()[0],
-                              self.RS.getRange()[1]],
-                              self.lin_params)
-            [mat_a, pix_storage_a] = a.get_surface()
-            final_frame = cs.Frame(vid, pix_storage_a, self.mode, [self.RS.getRange()[0], self.RS.getRange()[1]])
-
-            # saves picture to /Result folder (creates folder if there is no such folder)
-            cs.save_result_frame(final_frame.get_frame())
-
-            # When everything done, release the video capture object
-            vid.release()
+        # перенесём объект в другой поток
+        self.thread_obj.moveToThread(self.thread)
+        # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
+        self.thread.started.connect(self.thread_obj.run)
+        # запустим поток
+        self.thread.start()
 
     # Opens one of the setup windows (which one depends on selected mode)
     def open_setup(self):
