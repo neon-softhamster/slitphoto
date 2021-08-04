@@ -27,6 +27,9 @@ from qtrangeslider.qtcompat.QtWidgets import QApplication, QWidget
 
 # Объект, который будет перенесён в другой поток для выполнения кода
 class RenderThread(QtCore.QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+
     def __init__(self, *args, **kwargs):
         super(RenderThread, self).__init__(*args, **kwargs)
 
@@ -56,6 +59,8 @@ class RenderThread(QtCore.QObject):
         # change status of Go! button (makes it active)
         mw.render_btn.setText("Go!")
         mw.render_btn.setEnabled(True)
+
+        self.finished.emit()
 
 
 # Window for settings of classic mode
@@ -195,6 +200,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
         # # подключим сигнал старта потока к методу run у объекта, который должен выполнять код в другом потоке
         self.thread.started.connect(self.thread_obj.run)
+        self.thread_obj.finished.connect(self.thread.quit)
 
         # start thread
         self.thread.start()
