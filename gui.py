@@ -29,7 +29,6 @@ from qtrangeslider.qtcompat.QtWidgets import QApplication, QWidget
 class RenderThread(QtCore.QObject):
     def __init__(self, *args, **kwargs):
         super(RenderThread, self).__init__(*args, **kwargs)
-        self.threadactive = True
 
     def run(self):
         # change status of Go! button (it goes inactive)
@@ -37,50 +36,26 @@ class RenderThread(QtCore.QObject):
         mw.render_btn.setEnabled(False)
 
         if mw.mode == "CLASSIC":
-            video_file = cs.VideoFile(mw.name_of_file[0])
-            vid = video_file.get_video_flow()
-            frame_info = video_file.get_video_info()
-
-            final_frame = cs.Frame(vid, mw.slit_position, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+            final_frame = cs.Frame(mw.video_f, mw.slit_position, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
             cs.save_result_frame(final_frame.get_frame())
-
-            # When everything done, release the video capture object
-            vid.release()
         elif mw.mode == "LIN":
-            video_file = cs.VideoFile(mw.name_of_file[0])
-            vid = video_file.get_video_flow()
-            frame_info = video_file.get_video_info()
-
             a = cs.BasisCurve(mw.mode,
-                              [frame_info[0], frame_info[1], mw.RS.value()[0], mw.RS.value()[1]],
+                              [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
+                               mw.video_f.get(CAP_PROP_FRAME_HEIGHT),
+                               mw.RS.value()[0],
+                               mw.RS.value()[1]],
                               mw.lin_params)
-            [mat_a, pix_storage_a] = a.get_surface()
-            a.__del__()
-            final_frame = cs.Frame(vid, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+            pix_storage_a = a.get_surface()[1]
+            final_frame = cs.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
             cs.save_result_frame(final_frame.get_frame())
-
-            # When everything done, release the video capture object
-            vid.release()
 
         # change status of Go! button (makes it active)
         mw.render_btn.setText("Go!")
         mw.render_btn.setEnabled(True)
-
-
-# generates shadow effects for buttons. Used in all windows
-def shadows(self):
-    self.shadow_effect = []
-    for i in range(6):
-        self.shadow_effect.append(QGraphicsDropShadowEffect())
-        self.shadow_effect[i].setBlurRadius(20)
-        self.shadow_effect[i].setXOffset(0)
-        self.shadow_effect[i].setYOffset(5)
-        self.shadow_effect[i].setColor(QtGui.QColor(40, 40, 40))
-    return self.shadow_effect
 
 
 # Window for settings of classic mode
@@ -301,6 +276,18 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
         if self.isSetupSelected is True and self.isVideoLoaded is True:
             self.setup_btn.setEnabled(True)
+
+
+# generates shadow effects for buttons. Used in all windows
+def shadows(self):
+    self.shadow_effect = []
+    for i in range(6):
+        self.shadow_effect.append(QGraphicsDropShadowEffect())
+        self.shadow_effect[i].setBlurRadius(20)
+        self.shadow_effect[i].setXOffset(0)
+        self.shadow_effect[i].setYOffset(5)
+        self.shadow_effect[i].setColor(QtGui.QColor(40, 40, 40))
+    return self.shadow_effect
 
 
 if __name__ == "__main__":
