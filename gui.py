@@ -1,3 +1,5 @@
+import numpy as np
+
 import core_sup as cs
 
 # windows after qt designer
@@ -80,7 +82,7 @@ class ClassicSetupWin(QWidget, csw.Ui_Setup):
 
     # transmit settings to main window, works when Save button clicked
     def transmit_setup_to_main_win(self):
-        mw.slit_position = int(self.slit_pos_text_field.text())
+        mw.slit_position = int(self.slit_pos_text_field.value())
         mw.render_btn.setEnabled(True)
         mw.mode = "CLASSIC"
         self.close()
@@ -95,7 +97,6 @@ class MovingSetupWin(QWidget, msw.Ui_Setup):
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
-
         # adding shadows
         self.save_btn.setGraphicsEffect(self.shadow_effect[0])
 
@@ -104,7 +105,7 @@ class MovingSetupWin(QWidget, msw.Ui_Setup):
 
     # transmit settings to main window, works when Save button clicked
     def transmit_setup_to_main_win(self):
-        mw.lin_params = [float(self.x_inclin.text()), float(self.y_inclin.text()), float(self.t_shift.text())]
+        mw.lin_params = [float(self.x_inclin.value()), float(self.y_inclin.value()), float(self.t_shift.value())]
         mw.render_btn.setEnabled(True)
         mw.mode = "LIN"
         self.close()
@@ -128,8 +129,9 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.moving_setup_win = MovingSetupWin()
 
         # default SETUP parameters
-        self.slit_position = 0  # for classic mode
-        self.lin_params = [0.1, 0.1, 0]  # for moving slit mode
+        self.slit_position = 0                          # for classic mode
+        self.lin_params = np.zeros(3, float)            # for moving slit mode
+        self.gauss_params = np.zeros(6, float)          # for gauss mode
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
@@ -240,7 +242,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
             # update slider limits
             self.RS.setRange(0, int(self.video_f.get(CAP_PROP_FRAME_COUNT)) - 1)
-            self.RS.setValue((20, 60))
+            self.RS.setValue((int(0.25*self.video_f.get(CAP_PROP_FRAME_COUNT)), int(0.75*self.video_f.get(CAP_PROP_FRAME_COUNT))))
 
             self.set_frames_to_grid(self.RS.value()[0], self.RS.value()[1])
         else:

@@ -8,32 +8,16 @@ import numpy as np
 
 class BasisCurve:
     def __init__(self, curve_type, box, curve_param):
-        self.lst_param = []
         self.type = curve_type          # curve_type = CLASSIC, LIN, GAUSS or SIN
         self.lst_box = box              # box - [frame_w, frame_h, 1st frame in box, last frame in box]
-        self.min = box[3]
+        self.min = box[3]               # curve_param - list [k1, k2, k3, ...] (number of them depends on self.type)
         self.max = box[2]
-        self.param = curve_param        # param - list [k1, k2, k3, ...] (number of them depends on self.type)
 
-        self.mat = []                   # matrix for further picture
         # generation of matrix (surface in discrete space) with h = height of frame and w = width of frame
-        for i in range(int(self.lst_box[0])):
-            self.mat.append([0] * int(self.lst_box[1]))
+        self.mat = np.zeros((int(self.lst_box[0]), int(self.lst_box[1])), int)          # matrix for further picture
 
         # creates list of parameters for current type of curve
-        if self.type == 'LIN':
-            for i in range(3):
-                self.lst_param.append(0)
-        elif self.type == 'GAUSS':
-            for i in range(6):
-                self.lst_param.append(0)
-        elif self.type == 'CLASSIC':
-            for i in range(1):
-                self.lst_param.append(0)
-
-        # initiation of list of parameters
-        for i in range(len(self.param)):
-            self.lst_param[i] = self.param[i]
+        self.lst_param = curve_param
 
     def __del__(self):
         pass

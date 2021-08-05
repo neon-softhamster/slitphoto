@@ -1390,8 +1390,8 @@
    <widget class="QRadioButton" name="classics_radio_btn">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>520</y>
+      <x>30</x>
+      <y>530</y>
       <width>171</width>
       <height>31</height>
      </rect>
@@ -1459,8 +1459,8 @@
    <widget class="QRadioButton" name="moves_radio_btn_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>560</y>
+      <x>30</x>
+      <y>570</y>
       <width>171</width>
       <height>31</height>
      </rect>
@@ -1507,7 +1507,7 @@
       <x>30</x>
       <y>450</y>
       <width>1161</width>
-      <height>41</height>
+      <height>61</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="slider_layout"/>

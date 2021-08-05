@@ -1,11 +1,6 @@
-	QRangeSlider {
-		qproperty-barColor: #228751;
-	}
-
 	ClassicSetupWin{
         background: #353535;
-    }
-	
+    }	
 	QPushButton#save_btn{
         border-radius: 10px;
         background: #59AC9E;
@@ -57,7 +52,6 @@
 	QMainWindow{
         background: #353535;
     }
-
     QPushButton#setup_btn{
         border-radius: 10px;
         background: #3A99BD;
@@ -68,7 +62,6 @@
     QPushButton#setup_btn:hover{
         background: #6A94D4;
     }
-
     QPushButton#btn_explore_file{
         border-radius: 10px;
         background: #3A99BD;
@@ -79,7 +72,6 @@
     QPushButton#btn_explore_file:hover{
         background: #6A94D4;
     }
-
     QPushButton#render_btn{
         border-radius: 10px;
         background: #59AC9E;
@@ -90,10 +82,9 @@
     QPushButton#render_btn:hover{
         background: #6A94D4;
     }
-
     QPushButton#how_to_btn{
         border-radius: 10px;
-        background: #59AC9E;
+        background: #3A99BD;
         border: 3px;
         border-color: #62A4BD;
         padding: 10px;
@@ -101,33 +92,29 @@
     QPushButton#how_to_btn:hover{
         background: #6A94D4;
     }
-
     QRadioButton{
         color: #33CCCC;
     }
-
-    QRangeSlider {
-        border: 4px;
-        padding: 10px;
-    }
-    QRangeSlider #Head {
-        background: #1C4A60;
-    }
-    QRangeSlider #Span {
-        background: #31C0A8;
-    }
-    QRangeSlider #Span:active {
-        background: #186054;
-    }
-    QRangeSlider #Tail {
-        background: #1C4A60;
-    }
-    QRangeSlider > QSplitter::handle {
-        background: #31C0A8;
-    }
-    QRangeSlider > QSplitter::handle:vertical {
-        height: 2px;
-    }
-    QRangeSlider > QSplitter::handle:pressed {
-        background: #31C0A8;
-    }
+	QSlider {
+		min-height: 20px;
+	}
+	QSlider::groove:horizontal {
+		border: 0px;
+		background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #888, stop:1 #ddd);
+		height: 20px;
+		border-radius: 10px;
+	}
+	QSlider::handle {
+		background: #004225;
+		height: 20px;
+		width: 20px;
+		border-radius: 10px;
+	}
+	QSlider::sub-page:horizontal {
+		background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #227, stop:1 #77a);
+		border-top-left-radius: 10px;
+		border-bottom-left-radius: 10px;
+	}
+	QRangeSlider {
+		qproperty-barColor: #228751;
+	}
