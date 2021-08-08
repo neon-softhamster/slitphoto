@@ -136,11 +136,11 @@ class Frame:
 # Saves final_frame to /Results folder
 def save_result_frame(final_frame):
     i = 1
-    if os.path.exists(os.getcwd() + "\\Results") is True:
-        while os.path.exists(os.getcwd() + "\\Results\\Pic_" + str(i) + ".png") is True:
+    if os.path.exists(os.getcwd() + os.sep + "Results") is True:
+        while os.path.exists(os.getcwd() + os.sep + "Results" + os.sep + "Pic_" + str(i) + ".png") is True:
             i += 1
         else:
-            cv2.imwrite(os.getcwd() + "\\Results\\Pic_" + str(i) + ".png", final_frame)
+            cv2.imwrite(os.getcwd() + os.sep + "Results" + os.sep + "Pic_" + str(i) + ".png", final_frame)
     else:
-        os.mkdir(os.getcwd() + "\\Results")
-        cv2.imwrite(os.getcwd() + "\\Results\\Pic_1.png", final_frame)
+        os.mkdir(os.getcwd() + os.sep + "Results")
+        cv2.imwrite(os.getcwd() + os.sep + "Results" + os.sep + "Pic_1.png", final_frame)

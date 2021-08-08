@@ -142,8 +142,8 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.setup_btn.setGraphicsEffect(self.shadow_effect[5])
 
         # add stock img to main window
-        self.fst_frame.setPixmap(QPixmap("resources\\fst.jpg"))
-        self.lst_frame.setPixmap(QPixmap("resources\\lst.jpg"))
+        self.fst_frame.setPixmap(QPixmap("resources" + os.sep + "fst.jpg"))
+        self.lst_frame.setPixmap(QPixmap("resources" + os.sep + "lst.jpg"))
         self.fst_frame.setGraphicsEffect(self.shadow_effect[0])
         self.lst_frame.setGraphicsEffect(self.shadow_effect[1])
 
