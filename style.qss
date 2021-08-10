@@ -67,7 +67,21 @@
 	QLabel#label{
 		color: #33CCCC;
 	}
-	
+	QLabel#label_2{
+		color: #33CCCC;
+	}
+	QLabel#label_3{
+		color: #33CCCC;
+	}
+	QLabel#label_4{
+		color: #33CCCC;
+	}
+	QLabel#label_5{
+		color: #33CCCC;
+	}
+	QLabel#label_6{
+		color: #33CCCC;
+	}
 	
 	
 	QMainWindow{
