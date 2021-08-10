@@ -6,6 +6,7 @@ import core_sup as cs
 import window.main_win as gs
 import window.classic_setup_win as csw
 import window.moving_setup_win as msw
+import window.gauss_setup_win as gsw
 
 # Qt imports
 from PyQt5 import QtGui, QtCore
@@ -46,6 +47,18 @@ class RenderThread(QtCore.QObject):
             # saves picture to /Result folder (creates folder if there is no such folder)
             cs.save_result_frame(final_frame.get_frame())
         elif mw.mode == "LIN":
+            a = cs.BasisCurve(mw.mode,
+                              [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
+                               mw.video_f.get(CAP_PROP_FRAME_HEIGHT),
+                               mw.RS.value()[0],
+                               mw.RS.value()[1]],
+                              mw.lin_params)
+            pix_storage_a = a.get_surface()[1]
+            final_frame = cs.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+
+            # saves picture to /Result folder (creates folder if there is no such folder)
+            cs.save_result_frame(final_frame.get_frame())
+        elif mw.mode == "GAUSS":
             a = cs.BasisCurve(mw.mode,
                               [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
                                mw.video_f.get(CAP_PROP_FRAME_HEIGHT),
@@ -111,6 +124,30 @@ class MovingSetupWin(QWidget, msw.Ui_Setup):
         self.close()
 
 
+# Window for settings of gauss slit mode
+class GaussSetupWin(QWidget, gsw.Ui_Setup):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setupUi(self)
+
+        # generates list of shadow effects
+        self.shadow_effect = shadows(self)
+        # adding shadows
+        self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+
+        # ACTIONS #
+        self.save_btn.clicked.connect(self.transmit_setup_to_main_win)
+
+    # transmit settings to main window, works when Save button clicked
+    def transmit_setup_to_main_win(self):
+        mw.lin_params = [float(self.intense.value()), float(self.h_shift.value()), float(self.h_range.value()),
+                         float(self.v_shift.value()), float(self.v_range.value()), float(self.t_shift.value())]
+        mw.render_btn.setEnabled(True)
+        mw.mode = "GAUSS"
+        self.close()
+
+
 # Main window
 class MainWindow(QMainWindow, gs.Ui_Window):
     def __init__(self, *args, **kwargs):
@@ -127,6 +164,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         # creates setup window
         self.classic_setup_win = ClassicSetupWin()
         self.moving_setup_win = MovingSetupWin()
+        self.gauss_setup_win = GaussSetupWin()
 
         # default SETUP parameters
         self.slit_position = 0                          # for classic mode
@@ -177,6 +215,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         # mode selection
         self.classics_radio_btn.clicked.connect(self.classic_mode_selected)
         self.moves_radio_btn_2.clicked.connect(self.moving_mode_selected)
+        self.gauss_radio_btn.clicked.connect(self.gauss_mode_selected)
 
         # slider moved
         self.RS.valueChanged.connect(self.select_frame)
@@ -188,6 +227,10 @@ class MainWindow(QMainWindow, gs.Ui_Window):
     # changes mode to moving slit
     def moving_mode_selected(self):
         self.mode = "LIN"
+
+    # changes mode to gauss
+    def gauss_mode_selected(self):
+        self.mode = "GAUSS"
 
     # function starts when Go! button clicked. This starts making final picture
     def render_frame(self):
@@ -214,12 +257,18 @@ class MainWindow(QMainWindow, gs.Ui_Window):
             self.classic_setup_win.show()
 
             # transmit data from MainWindow to SetupWindow
+            # add frame width
             self.classic_setup_win.frame_width_label.setText(
                 "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
-            # self.classic_setup_win.frame_layout.addWidget(self.fst_frame)
+
+            # add frame
+            self.classic_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            self.classic_setup_win.frame_layout.addWidget(self.classic_setup_win.frame)
+
+            # set random slit position
             self.classic_setup_win.slit_pos_text_field.setValue(
                 random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH))))
-            self.set_frames_to_grid(self.RS.value()[0], self.RS.value()[1])
+
         elif self.mode == "LIN":
             self.moving_setup_win.setStyleSheet(style)
             self.moving_setup_win.show()
@@ -228,11 +277,33 @@ class MainWindow(QMainWindow, gs.Ui_Window):
             self.moving_setup_win.frame_width_label.setText(
                 "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
 
+            # add frame
+            self.moving_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            self.moving_setup_win.frame_layout.addWidget(self.moving_setup_win.frame)
+
+        elif self.mode == "GAUSS":
+            self.gauss_setup_win.setStyleSheet(style)
+            self.gauss_setup_win.show()
+
+            # transmit data from MainWindow to SetupWindow
+            self.gauss_setup_win.frame_width_label.setText(
+                "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
+
+            # add frame
+            self.gauss_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            self.gauss_setup_win.frame_layout.addWidget(self.moving_setup_win.frame)
+
     # opens system window to search files to open
     def search_name_file(self):
         self.name_of_file = QFileDialog.getOpenFileName(self, "Open video file", os.getcwd(), "Video files (*.mp4)")
         if self.name_of_file[0] != "":
+            # closes previous video and closes setup window
             self.video_f.release()
+            if self.classic_setup_win.isEnabled():
+                self.classic_setup_win.close()
+            if self.moving_setup_win.isEnabled():
+                self.moving_setup_win.close()
+
             self.video_f.open(self.name_of_file[0])
             self.isVideoLoaded = True
             self.setup_btn_activation()
@@ -279,7 +350,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
     # makes setup button active when mode is selected AND video is opened
     def setup_btn_activation(self):
-        if self.classics_radio_btn.isChecked() is True or self.moves_radio_btn_2.isChecked() is True:
+        if self.classics_radio_btn.isChecked() is True or self.moves_radio_btn_2.isChecked() is True or self.gauss_radio_btn.isChecked() is True:
             self.isSetupSelected = True
 
         if self.isSetupSelected is True and self.isVideoLoaded is True:

@@ -1512,6 +1512,27 @@
     </property>
     <layout class="QHBoxLayout" name="slider_layout"/>
    </widget>
+   <widget class="QRadioButton" name="gauss_radio_btn">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>570</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Bahnschrift SemiBold</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Gauss mode</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

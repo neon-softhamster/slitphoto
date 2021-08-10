@@ -48,6 +48,27 @@
 	}
 	
 	
+	GaussSetupWin{
+        background: #353535;
+    }	
+	QPushButton#save_btn{
+        border-radius: 10px;
+        background: #59AC9E;
+        border: 3px;
+        border-color: #62A4BD;
+        padding: 10px;
+    }
+    QPushButton#save_btn:hover{
+        background: #6A94D4;
+    }
+	QLabel#frame_width_label{
+		color: #33CCCC;
+	}
+	QLabel#label{
+		color: #33CCCC;
+	}
+	
+	
 	
 	QMainWindow{
         background: #353535;

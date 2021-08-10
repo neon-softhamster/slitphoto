@@ -56,8 +56,8 @@ class BasisCurve:
             for x in range(int(self.lst_box[0])):
                 for y in range(int(self.lst_box[1])):
                     self.mat[x][y] = round(self.lst_param[0] *
-                                           m.exp(((x - self.lst_param[1]) / self.lst_param[2]) ** 2) *
-                                           m.exp(((y - self.lst_param[3]) / self.lst_param[4]) ** 2) +
+                                           m.exp(- ((x - self.lst_param[1]) ** 2) / self.lst_param[2]) *
+                                           m.exp(- ((y - self.lst_param[3]) ** 2) / self.lst_param[4]) +
                                            self.lst_param[5])
 
                     self.mat[x][y] = self._curve_proc(self.mat[x][y])
