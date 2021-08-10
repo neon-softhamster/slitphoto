@@ -40,18 +40,7 @@
     <string>Save</string>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>881</width>
-     <height>491</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="frame_layout"/>
-  </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="slit_pos_text">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -125,6 +114,28 @@
    <property name="maximum">
     <double>10000.000000000000000</double>
    </property>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>881</width>
+     <height>511</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="frame_layout">
+    <item>
+     <widget class="QLabel" name="frame">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

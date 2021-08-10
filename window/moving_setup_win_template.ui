@@ -49,7 +49,18 @@
      <height>491</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="frame_layout"/>
+   <layout class="QVBoxLayout" name="frame_layout">
+    <item>
+     <widget class="QLabel" name="frame">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
