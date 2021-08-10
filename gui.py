@@ -12,7 +12,7 @@ import window.gauss_setup_win as gsw
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QGraphicsDropShadowEffect, QWidget
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 
 # other useful stuff
 import time
@@ -84,14 +84,24 @@ class ClassicSetupWin(QWidget, csw.Ui_Setup):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
+        self.setWindowTitle('Setup window for classic slit mode')
+
+        self.frame.setMouseTracking(True)
+        self.frame.installEventFilter(self)
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
         # adding shadows
         self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+        self.frame.setGraphicsEffect(self.shadow_effect[1])
 
         # ACTIONS #
         self.save_btn.clicked.connect(self.transmit_setup_to_main_win)
+
+    def eventFilter(self, o, e):
+        if o is self.frame and e.type() == QtCore.QEvent.MouseMove:
+            self.slit_pos_text_field.setValue(round(mw.video_f.get(CAP_PROP_FRAME_HEIGHT) / 450 * e.x()))
+        return super().eventFilter(o, e)
 
     # transmit settings to main window, works when Save button clicked
     def transmit_setup_to_main_win(self):
@@ -107,11 +117,13 @@ class MovingSetupWin(QWidget, msw.Ui_Setup):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
+        self.setWindowTitle('Setup window for moving slit mode')
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
         # adding shadows
         self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+        self.frame.setGraphicsEffect(self.shadow_effect[1])
 
         # ACTIONS #
         self.save_btn.clicked.connect(self.transmit_setup_to_main_win)
@@ -124,20 +136,31 @@ class MovingSetupWin(QWidget, msw.Ui_Setup):
         self.close()
 
 
-# Window for settings of gauss slit mode
+# Window for settings of gauss mode
 class GaussSetupWin(QWidget, gsw.Ui_Setup):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
+        self.setWindowTitle('Setup window for gauss mode')
+
+        self.frame.setMouseTracking(True)
+        self.frame.installEventFilter(self)
 
         # generates list of shadow effects
         self.shadow_effect = shadows(self)
         # adding shadows
         self.save_btn.setGraphicsEffect(self.shadow_effect[0])
+        self.frame.setGraphicsEffect(self.shadow_effect[1])
 
         # ACTIONS #
         self.save_btn.clicked.connect(self.transmit_setup_to_main_win)
+
+    def eventFilter(self, o, e):
+        if o is self.frame and e.type() == QtCore.QEvent.MouseMove:
+            self.v_shift.setValue(round(mw.video_f.get(CAP_PROP_FRAME_HEIGHT) / 450 * e.x()))
+            self.h_shift.setValue(round(mw.video_f.get(CAP_PROP_FRAME_HEIGHT) / 450 * e.y()))
+        return super().eventFilter(o, e)
 
     # transmit settings to main window, works when Save button clicked
     def transmit_setup_to_main_win(self):
@@ -160,11 +183,6 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         self.n0 = 0
         self.pic = QPixmap()
         self.mode = ""
-
-        # creates setup window
-        self.classic_setup_win = ClassicSetupWin()
-        self.moving_setup_win = MovingSetupWin()
-        self.gauss_setup_win = GaussSetupWin()
 
         # default SETUP parameters
         self.slit_position = 0                          # for classic mode
@@ -253,45 +271,46 @@ class MainWindow(QMainWindow, gs.Ui_Window):
     # Opens one of the setup windows (which one depends on selected mode)
     def open_setup(self):
         if self.mode == "CLASSIC":
-            self.classic_setup_win.setStyleSheet(style)
-            self.classic_setup_win.show()
+            classic_setup_win.setStyleSheet(style)
+            classic_setup_win.slit_pos_text_field.setMaximum(self.video_f.get(CAP_PROP_FRAME_WIDTH))
+            classic_setup_win.show()
 
             # transmit data from MainWindow to SetupWindow
             # add frame width
-            self.classic_setup_win.frame_width_label.setText(
+            classic_setup_win.frame_width_label.setText(
                 "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
 
             # add frame
-            self.classic_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
-            self.classic_setup_win.frame_layout.addWidget(self.classic_setup_win.frame)
+            classic_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            classic_setup_win.frame_layout.addWidget(classic_setup_win.frame)
 
             # set random slit position
-            self.classic_setup_win.slit_pos_text_field.setValue(
+            classic_setup_win.slit_pos_text_field.setValue(
                 random.randint(1, int(self.video_f.get(CAP_PROP_FRAME_WIDTH))))
 
         elif self.mode == "LIN":
-            self.moving_setup_win.setStyleSheet(style)
-            self.moving_setup_win.show()
+            moving_setup_win.setStyleSheet(style)
+            moving_setup_win.show()
 
             # transmit data from MainWindow to SetupWindow
-            self.moving_setup_win.frame_width_label.setText(
+            moving_setup_win.frame_width_label.setText(
                 "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
 
             # add frame
-            self.moving_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
-            self.moving_setup_win.frame_layout.addWidget(self.moving_setup_win.frame)
+            moving_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            moving_setup_win.frame_layout.addWidget(moving_setup_win.frame)
 
         elif self.mode == "GAUSS":
-            self.gauss_setup_win.setStyleSheet(style)
-            self.gauss_setup_win.show()
+            gauss_setup_win.setStyleSheet(style)
+            gauss_setup_win.show()
 
             # transmit data from MainWindow to SetupWindow
-            self.gauss_setup_win.frame_width_label.setText(
+            gauss_setup_win.frame_width_label.setText(
                 "<< " + str(int(self.video_f.get(CAP_PROP_FRAME_WIDTH))) + " px >>")
 
             # add frame
-            self.gauss_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
-            self.gauss_setup_win.frame_layout.addWidget(self.moving_setup_win.frame)
+            gauss_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
+            gauss_setup_win.frame_layout.addWidget(moving_setup_win.frame)
 
     # opens system window to search files to open
     def search_name_file(self):
@@ -299,10 +318,12 @@ class MainWindow(QMainWindow, gs.Ui_Window):
         if self.name_of_file[0] != "":
             # closes previous video and closes setup window
             self.video_f.release()
-            if self.classic_setup_win.isEnabled():
-                self.classic_setup_win.close()
-            if self.moving_setup_win.isEnabled():
-                self.moving_setup_win.close()
+            if classic_setup_win.isEnabled():
+                classic_setup_win.close()
+            if moving_setup_win.isEnabled():
+                moving_setup_win.close()
+            if gauss_setup_win.isEnabled():
+                gauss_setup_win.close()
 
             self.video_f.open(self.name_of_file[0])
             self.isVideoLoaded = True
@@ -372,6 +393,11 @@ def shadows(self):
 if __name__ == "__main__":
     cv2.setUseOptimized(cv2.useOptimized())
     app = QApplication(sys.argv)
+
+    # creates setup windows
+    classic_setup_win = ClassicSetupWin()
+    moving_setup_win = MovingSetupWin()
+    gauss_setup_win = GaussSetupWin()
 
     with open("style.qss", "r") as s:
         style = s.read()

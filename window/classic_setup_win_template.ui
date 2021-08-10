@@ -115,18 +115,30 @@
     <double>10000.000000000000000</double>
    </property>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
+  <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
      <width>881</width>
-     <height>511</height>
+     <height>491</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="frame_layout">
+   <layout class="QHBoxLayout" name="frame_layout">
     <item>
      <widget class="QLabel" name="frame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="cursor">
+       <cursorShape>SplitHCursor</cursorShape>
+      </property>
       <property name="text">
        <string/>
       </property>
