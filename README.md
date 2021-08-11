@@ -1,13 +1,15 @@
-# Standard Readme
+# Description
 
-This repository contains program for doing slit photography. It provides user interface, quite good perfomance to try this genre of photography.
+This repository contains program for doing slit photography. It provides user interface and quite good perfomance to try this genre of photography.
 
 Tested on:
 
 - Windows 10
 - Linux
 
-![alt text](screenshots/example1.jpg "Описание будет тут")
+The result obtained using the program.
+
+![alt text](screenshots/example1.jpg "Example")
 
 ## Table of Contents
 
@@ -23,12 +25,12 @@ Read [wiki article](https://en.wikipedia.org/wiki/Slit-scan_photography) about s
 
 ## Install
 
-You have **two options** here: to download pre-prepared files for your system from this source (easy way) **or** you can clone this repository, install all required 
+You have **two options** here: to download pre-prepared files for your system (easy way) **or** you can clone this repository, install all required 
 libraries and run .py file derectly (more complicated way).
 
 ### Easy way
 
-Download zip-folder for your system, than unpack wherever you want and run .exe file if you are using Windows or run ./executable_file_name on Linux. On Linux 
+Download [zip-folder](https://drive.google.com/file/d/1s1wD6B3BcZGrnxPjiyfwsvy7TBHLlXYq/view?usp=sharing) for your system, than unpack wherever you want and run .exe file if you are using Windows or run ./executable_file_name on Linux. On Linux 
 it may be necessary to make the file executable like this:
 
 ```sh
@@ -43,7 +45,7 @@ Clone this repository:
 $ git clone https://github.com/neon-softhamster/slitphoto.git
 ```
 
-Go folder slitphoto
+Go slitphoto folder
 ```sh
 cd slitphoto
 ```
