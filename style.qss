@@ -14,7 +14,7 @@
 	QLabel#frame_width_label{
 		color: #33CCCC;
 	}
-	QLabel#label{
+	QLabel#slit_pos_text{
 		color: #33CCCC;
 	}
 	

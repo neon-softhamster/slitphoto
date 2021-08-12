@@ -1,9 +1,9 @@
 import numpy as np
 
-import core_sup as cs
+import core
 
 # windows after qt designer
-import window.main_win as gs
+import window.main_win as mainwindow
 import window.classic_setup_win as csw
 import window.moving_setup_win as msw
 import window.gauss_setup_win as gsw
@@ -16,11 +16,12 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 
 # other useful stuff
 import time
+import webbrowser
 import os
 import sys
 import random
-import cv2
-from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
+from cv2 import VideoCapture, CAP_PROP_POS_FRAMES, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, \
+    COLOR_BGR2RGB, cvtColor, setUseOptimized, useOptimized
 
 # range slider made by Talley Lambert (https://github.com/tlambert03/QtRangeSlider)
 from qtrangeslider._labeled import QLabeledRangeSlider
@@ -42,34 +43,34 @@ class RenderThread(QtCore.QObject):
         mw.render_btn.setEnabled(False)
 
         if mw.mode == "CLASSIC":
-            final_frame = cs.Frame(mw.video_f, mw.slit_position, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+            final_frame = core.Frame(mw.video_f, mw.slit_position, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
-            cs.save_result_frame(final_frame.get_frame())
+            core.save_result_frame(final_frame.get_frame())
         elif mw.mode == "LIN":
-            a = cs.BasisCurve(mw.mode,
-                              [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
+            a = core.BasisCurve(mw.mode,
+                                [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
                                mw.video_f.get(CAP_PROP_FRAME_HEIGHT),
                                mw.RS.value()[0],
                                mw.RS.value()[1]],
-                              mw.lin_params)
+                                mw.lin_params)
             pix_storage_a = a.get_surface()[1]
-            final_frame = cs.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+            final_frame = core.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
-            cs.save_result_frame(final_frame.get_frame())
+            core.save_result_frame(final_frame.get_frame())
         elif mw.mode == "GAUSS":
-            a = cs.BasisCurve(mw.mode,
-                              [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
+            a = core.BasisCurve(mw.mode,
+                                [mw.video_f.get(CAP_PROP_FRAME_WIDTH),
                                mw.video_f.get(CAP_PROP_FRAME_HEIGHT),
                                mw.RS.value()[0],
                                mw.RS.value()[1]],
-                              mw.lin_params)
+                                mw.lin_params)
             pix_storage_a = a.get_surface()[1]
-            final_frame = cs.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
+            final_frame = core.Frame(mw.video_f, pix_storage_a, mw.mode, [mw.RS.value()[0], mw.RS.value()[1]])
 
             # saves picture to /Result folder (creates folder if there is no such folder)
-            cs.save_result_frame(final_frame.get_frame())
+            core.save_result_frame(final_frame.get_frame())
 
         # change status of Go! button (makes it active)
         mw.render_btn.setText("Go!")
@@ -172,7 +173,7 @@ class GaussSetupWin(QWidget, gsw.Ui_Setup):
 
 
 # Main window
-class MainWindow(QMainWindow, gs.Ui_Window):
+class MainWindow(QMainWindow, mainwindow.Ui_Window):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -237,6 +238,9 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
         # slider moved
         self.RS.valueChanged.connect(self.select_frame)
+
+        # "how to" button clicked
+        self.how_to_btn.clicked.connect(lambda: webbrowser.open('https://github.com/neon-softhamster/slitphoto#usage'))
 
     # changes mode to classic
     def classic_mode_selected(self):
@@ -310,7 +314,10 @@ class MainWindow(QMainWindow, gs.Ui_Window):
 
             # add frame
             gauss_setup_win.frame.setPixmap(self.convert_cv2qt(450, self.RS.value()[0]))
-            gauss_setup_win.frame_layout.addWidget(moving_setup_win.frame)
+            gauss_setup_win.frame_layout.addWidget(gauss_setup_win.frame)
+
+            # change shift to first range slider value
+            gauss_setup_win.t_shift.setValue(int(self.RS.value()[0]))
 
     # opens system window to search files to open
     def search_name_file(self):
@@ -358,7 +365,7 @@ class MainWindow(QMainWindow, gs.Ui_Window):
             self.video_f.set(CAP_PROP_POS_FRAMES, n)  # go to n frame
             self.n0 = n
             inf, cv_img = self.video_f.read()  # reading frame to cv pic
-            rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+            rgb_image = cvtColor(cv_img, COLOR_BGR2RGB)
             h, w, ch = rgb_image.shape
             bytes_per_line = ch * w
             convert_to_qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
@@ -391,7 +398,7 @@ def shadows(self):
 
 
 if __name__ == "__main__":
-    cv2.setUseOptimized(cv2.useOptimized())
+    setUseOptimized(useOptimized())
     app = QApplication(sys.argv)
 
     # creates setup windows

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1225</width>
-    <height>700</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="maximumSize">
    <size>
     <width>1225</width>
-    <height>700</height>
+    <height>800</height>
    </size>
   </property>
   <property name="palette">
@@ -1412,7 +1412,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>630</y>
+      <y>730</y>
       <width>151</width>
       <height>51</height>
      </rect>
@@ -1436,7 +1436,7 @@
     <property name="geometry">
      <rect>
       <x>1050</x>
-      <y>630</y>
+      <y>730</y>
       <width>151</width>
       <height>51</height>
      </rect>
@@ -1481,7 +1481,7 @@
     <property name="geometry">
      <rect>
       <x>870</x>
-      <y>630</y>
+      <y>730</y>
       <width>151</width>
       <height>51</height>
      </rect>
@@ -1515,8 +1515,8 @@
    <widget class="QRadioButton" name="gauss_radio_btn">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>570</y>
+      <x>30</x>
+      <y>610</y>
       <width>171</width>
       <height>31</height>
      </rect>
