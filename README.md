@@ -30,7 +30,7 @@ libraries and run .py file derectly (more complicated way).
 
 ### Easy way
 
-Download [zip-folder](https://drive.google.com/file/d/1s1wD6B3BcZGrnxPjiyfwsvy7TBHLlXYq/view?usp=sharing) for your system, than unpack wherever you want and run .exe file if you are using Windows or run ./executable_file_name on Linux. On Linux 
+Download [archive](https://github.com/neon-softhamster/slitphoto/releases/tag/v0.1) for your system, than unpack wherever you want and run .exe file if you are using Windows or run ./executable_file_name on Linux. On Linux 
 it may be necessary to make the file executable like this:
 
 ```sh
